@@ -15,8 +15,6 @@ using namespace clang;
 using namespace clang::ast_matchers;
 using namespace clang::tooling;
 
-static llvm::cl::OptionCategory ToolCategory("refactor-tool options");
-
 // Метод run вызывается для каждого совпадения с матчем. 
 // Мы проверяем тип совпадения по bind-именам и применяем рефакторинг.
 void RefactorHandler::run(const MatchFinder::MatchResult &Result) {
@@ -133,19 +131,4 @@ void CodeRefactorAction::EndSourceFileAction() {
     if (RewriterForCodeRefactor.overwriteChangedFiles()) {
         llvm::errs() << "Error applying changes to files.\n";
     }
-}
-
-
-int main(int argc, const char **argv) {
-    // Парсер опций: Обрабатывает флаги командной строки, компиляционные базы данных.
-    auto ExpectedParser = CommonOptionsParser::create(argc, argv, ToolCategory);
-    if (!ExpectedParser) {
-        llvm::errs() << ExpectedParser.takeError();
-        return 1;
-    }
-    CommonOptionsParser &OptionsParser = ExpectedParser.get();
-    // Создаем ClangTool
-    ClangTool Tool(OptionsParser.getCompilations(), OptionsParser.getSourcePathList());
-    // Запускаем RefactorAction.
-    return Tool.run(newFrontendActionFactory<CodeRefactorAction>().get());
 }

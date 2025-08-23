@@ -33,9 +33,8 @@ FetchContent_MakeAvailable(googletest)
 file(GLOB TEST_SRC_FILES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
 
 add_executable(${PROJECT_NAME}_tests "${TEST_SRC_FILES}")
-target_link_libraries(${PROJECT_NAME}_tests PRIVATE gtest_main)
+target_link_libraries(${PROJECT_NAME}_tests PRIVATE gtest_main refactor_tool_lib)
 target_include_directories(${PROJECT_NAME}_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
 include(GoogleTest)
-gtest_discover_tests(refactor_tool_tests)
+gtest_discover_tests(${PROJECT_NAME}_tests)
