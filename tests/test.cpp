@@ -103,6 +103,39 @@ public:
     EXPECT_NE(Out.find("void foo() override"), std::string::npos);
 }
 
+TEST(RefactorTool, AddOverrideToMethod_Correct)
+{
+    const std::string Code = R"cpp(
+class Base {
+public:
+    virtual void fooOne() {}
+    virtual void fooTwo() const {}
+    virtual void fooThree() {}
+    virtual void fooFour() noexcept(true) {}
+    virtual void fooFive() && noexcept(true) {}
+    virtual void fooSix() /*some*/ const {}
+};
+
+class Derived : public Base {
+public:
+    void fooOne() /*some*/ {}
+    void fooTwo() const {}
+    void fooThree() final {}
+    void fooFour() noexcept(true) {}
+    void fooFive() && noexcept(true) {}
+    void fooSix() /*some*/ const {}
+};
+)cpp";
+
+    std::string Out = runToolAndReadFile(Code);
+    EXPECT_NE(Out.find("void fooOne() override /*some*/"), std::string::npos);
+    EXPECT_NE(Out.find("void fooTwo() const override "), std::string::npos);
+    EXPECT_NE(Out.find("void fooThree() final {}"), std::string::npos);
+    EXPECT_NE(Out.find("void fooFour() noexcept(true) override "), std::string::npos);
+    EXPECT_NE(Out.find("void fooFive() && noexcept(true) override "), std::string::npos);
+    EXPECT_NE(Out.find("void fooSix() /*some*/ const override "), std::string::npos);
+}
+
 TEST(RefactorTool, DontDuplicateOverride_WhenAlreadyPresent)
 {
     const std::string Code = R"cpp(
@@ -162,4 +195,22 @@ void f() {
 
     std::string Out = runToolAndReadFile(Code);
     EXPECT_EQ(Out.find("const int& x"), std::string::npos);
+}
+
+TEST(RefactorTool, DontChangeHasRef)
+{
+    const std::string Code = R"cpp(
+#include <vector>
+struct Heavy { Heavy(){} Heavy(const Heavy&){} };
+void f() {
+    std::vector<Heavy> v;
+    for (const Heavy& h : v) {
+        (void)h;
+    }
+}
+)cpp";
+
+    std::string Out = runToolAndReadFile(Code);
+    int stop = 0;
+    EXPECT_NE(Out.find("const Heavy& h"), std::string::npos);
 }
