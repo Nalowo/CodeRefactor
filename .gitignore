@@ -4,3 +4,4 @@ CMakeUserPresets.json
 .DS_Store
 *.vscode/
 *tests/tests_data/tmp/
+*Testing/
