@@ -151,15 +151,7 @@ public:
 )cpp";
 
     std::string Out = runToolAndReadFile(Code);
-    // Должно присутствовать ровно одно "override" в определении метода (не меньше 1)
-    size_t count = 0;
-    size_t pos = 0;
-    while ((pos = Out.find("override", pos)) != std::string::npos)
-    {
-        ++count;
-        pos += 8;
-    }
-    EXPECT_GE(count, 1u);
+    EXPECT_TRUE(Out.empty()); // пустой вывод когда ничего не поменялось
 }
 
 // ---------- Tests for range-for const T -> const T& ----------
@@ -220,5 +212,5 @@ void f() {
 )cpp";
 
     std::string Out = runToolAndReadFile(Code);
-    EXPECT_TRUE(Out.empty());
+    EXPECT_TRUE(Out.empty()); // пустой вывод когда ничего не поменялось
 }

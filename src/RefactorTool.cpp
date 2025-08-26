@@ -185,7 +185,7 @@ void RefactorHandler::handle_miss_override(const CXXMethodDecl *Method,
     auto CSR = CharSourceRange::getTokenRange(SR);
     auto &Ctx = Method->getASTContext();
     const auto &LangOpts = Ctx.getLangOpts();
-    
+
     auto insertLoc = details::GetOverrideInsertLoc(Lexer::getSourceText(CSR, SM, LangOpts), SR);
     if (!insertLoc || insertLoc->isInvalid() || !SM.isInMainFile(*insertLoc))
         return;
@@ -250,12 +250,16 @@ void RefactorHandler::handle_crange_for(const VarDecl *LoopVar,
 
 auto NvDtorMatcher()
 {
-    return cxxDestructorDecl(unless(isVirtual())).bind("nonVirtualDtor");
+    return cxxDestructorDecl(unless(isVirtual()), unless(isImplicit())).bind("nonVirtualDtor");
 }
 
 auto NoOverrideMatcher()
 {
-    return cxxMethodDecl(isOverride()).bind("missingOverride");
+    return cxxMethodDecl(
+               isOverride(),
+               unless(cxxDestructorDecl()) // исключаем деструкторы
+               )
+        .bind("missingOverride");
 }
 
 auto NoRefConstVarInRangeLoopMatcher()
