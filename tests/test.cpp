@@ -24,7 +24,7 @@ static std::string runToolAndReadFile(const std::string &Code)
     llvm::SmallString<64> TempPath;
     if (auto EC = llvm::sys::fs::createTemporaryFile("refactor_test", "cpp", TempPath))
         throw std::runtime_error(std::string("Cannot create temporary file: ") + EC.message());
-    
+
     std::string FileName = std::string(TempPath.c_str());
     std::vector<std::string> Args = {"-std=c++20"};
     if (!runToolOnCodeWithArgs(std::make_unique<CodeRefactorAction>(), Code, Args, FileName))
@@ -203,14 +203,22 @@ TEST(RefactorTool, DontChangeHasRef)
 #include <vector>
 struct Heavy { Heavy(){} Heavy(const Heavy&){} };
 void f() {
+    {
     std::vector<Heavy> v;
-    for (const Heavy& h : v) {
-        (void)h;
+        for (const Heavy& h : v) {
+            (void)h;
+        }
+    }
+    
+    {
+    std::vector<int> v;
+        for (const auto h : v) {
+            (void)h;
+        }
     }
 }
 )cpp";
 
     std::string Out = runToolAndReadFile(Code);
-    int stop = 0;
-    EXPECT_NE(Out.find("const Heavy& h"), std::string::npos);
+    EXPECT_TRUE(Out.empty());
 }
