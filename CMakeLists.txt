@@ -11,17 +11,19 @@ project(clang-tutor)
 #   https://cmake.org/cmake/help/latest/command/find_package.html
 # Use only _one_ of these variables.
 
-if(DEFINED Clang_ROOT)
-  set(CT_CLANG_PACKAGE_DIR "${Clang_ROOT}/../../..")
-elseif(DEFINED Clang_DIR)
-  set(CT_CLANG_PACKAGE_DIR "${Clang_DIR}/../../..")
-endif()
-mark_as_advanced(CT_CLANG_PACKAGE_DIR)
+set(CT_Clang_INSTALL_DIR "/usr/lib/llvm-20/" CACHE PATH "Clang installation directory")
+
+# if(DEFINED Clang_ROOT)
+#   set(CT_CLANG_PACKAGE_DIR "${Clang_ROOT}/../../..")
+# elseif(DEFINED Clang_DIR)
+#   set(CT_CLANG_PACKAGE_DIR "${Clang_DIR}/../../..")
+# endif()
+# mark_as_advanced(CT_CLANG_PACKAGE_DIR)
 
 # Set this to a valid Clang installation directory. This is most likely where
 # LLVM is installed on your system.
-set(CT_Clang_INSTALL_DIR "${CT_CLANG_PACKAGE_DIR}" CACHE PATH
-  "Clang installation directory")
+# set(CT_Clang_INSTALL_DIR "${CT_CLANG_PACKAGE_DIR}" CACHE PATH
+#   "Clang installation directory")
 
 #===============================================================================
 # 1. VERIFY CLANG INSTALLATION DIR
@@ -107,5 +109,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 #===============================================================================
 add_subdirectory(tests)
 add_subdirectory(src)
+
+enable_testing()
+add_test(NAME RefactorTool_Tests COMMAND refactor_tool_tests)
 
 

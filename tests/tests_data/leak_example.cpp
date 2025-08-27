@@ -2,12 +2,14 @@
 
 class Base {
 public:
-    virtual ~Base() {}  // Невиртуальный
+    virtual void Fo() = 0;
+    ~Base() {}  // Невиртуальный
 };
 
 class Derived : public Base {
 public:
     Derived() { data = new int[1000]; }  // Выделение памяти
+    void Fo() final {}
     ~Derived() { delete[] data; }  // Освобождение в деструкторе наследника
 private:
     int* data;
